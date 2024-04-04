@@ -16,8 +16,13 @@ export class TrustlessGatewayBlockBroker implements BlockBroker<TrustlessGateway
   constructor (components: TrustlessGatewayComponents, init: TrustlessGatewayBlockBrokerInit = {}) {
     this.log = components.logger.forComponent('helia:trustless-gateway-block-broker')
     this.gateways = (init.gateways ?? DEFAULT_TRUSTLESS_GATEWAYS)
-      .map((gatewayOrUrl) => {
-        return new TrustlessGateway(gatewayOrUrl)
+      .map((gw) => {
+        if (typeof gw === 'string' || gw instanceof URL) {
+          // backward compatibility defaults to path gateway
+          return new TrustlessGateway(gw, { subdomainResolution: false })
+        }
+
+        return new TrustlessGateway(gw.url, { subdomainResolution: gw.subdomainResolution })
       })
   }
 

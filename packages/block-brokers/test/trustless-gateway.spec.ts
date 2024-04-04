@@ -37,7 +37,7 @@ describe('trustless-gateway-block-broker', () => {
 
     gateways = [
       stubConstructor(TrustlessGateway, 'http://localhost:8080'),
-      stubConstructor(TrustlessGateway, 'http://localhost:8081'),
+      stubConstructor(TrustlessGateway, 'http://localhost:8081', { subdomainResolution: true }),
       stubConstructor(TrustlessGateway, 'http://localhost:8082'),
       stubConstructor(TrustlessGateway, 'http://localhost:8083')
     ]
@@ -149,5 +149,18 @@ describe('trustless-gateway-block-broker', () => {
     expect(gateways[0].getRawBlock.calledWith(cid1, Sinon.match.any)).to.be.false()
     expect(gateways[1].getRawBlock.calledWith(cid1, Sinon.match.any)).to.be.false()
     expect(gateways[2].getRawBlock.calledWith(cid1, Sinon.match.any)).to.be.false()
+  })
+
+  it('constructs the gateway url for the cid for both path and subdomain gateways', async () => {
+    const pathGw = new TrustlessGateway('http://localhost:8080')
+    const subdomainGw = new TrustlessGateway('https://dweb.link', { subdomainResolution: true })
+
+    expect(pathGw.getGwUrl(blocks[0].cid).hostname).to.equal('localhost')
+    expect(pathGw.getGwUrl(blocks[0].cid).toString()).to.equal('http://localhost:8080/ipfs/bafkreiefnkxuhnq3536qo2i2w3tazvifek4mbbzb6zlq3ouhprjce5c3aq')
+    expect(pathGw.getGwUrl(blocks[1].cid).toString()).to.equal(`http://localhost:8080/ipfs/${blocks[1].cid.toString()}`)
+
+    expect(subdomainGw.getGwUrl(blocks[0].cid).hostname).to.equal('bafkreiefnkxuhnq3536qo2i2w3tazvifek4mbbzb6zlq3ouhprjce5c3aq.ipfs.dweb.link')
+    expect(subdomainGw.getGwUrl(blocks[0].cid).toString()).to.equal('https://bafkreiefnkxuhnq3536qo2i2w3tazvifek4mbbzb6zlq3ouhprjce5c3aq.ipfs.dweb.link/')
+    expect(subdomainGw.getGwUrl(blocks[1].cid).toString()).to.equal(`https://${blocks[1].cid.toString()}.ipfs.dweb.link/`)
   })
 })

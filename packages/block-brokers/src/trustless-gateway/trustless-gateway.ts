@@ -1,4 +1,13 @@
+import { base32 } from 'multiformats/bases/base32'
 import type { CID } from 'multiformats/cid'
+
+interface TrustlessGatewayOpts {
+
+  /**
+   * Determins whether the gateway supports subdomain resolution
+   */
+  subdomainResolution: boolean
+}
 
 /**
  * A `TrustlessGateway` keeps track of the number of attempts, errors, and
@@ -8,6 +17,12 @@ import type { CID } from 'multiformats/cid'
  */
 export class TrustlessGateway {
   public readonly url: URL
+
+  /**
+   * Whether this gateway is a subdomain resolution style gateway
+   */
+  public subdomainResolution: boolean
+
   /**
    * The number of times this gateway has been attempted to be used to fetch a
    * block. This includes successful, errored, and aborted attempts. By counting
@@ -36,8 +51,9 @@ export class TrustlessGateway {
    */
   #successes = 0
 
-  constructor (url: URL | string) {
+  constructor (url: URL | string, { subdomainResolution }: TrustlessGatewayOpts = { subdomainResolution: false }) {
     this.url = url instanceof URL ? url : new URL(url)
+    this.subdomainResolution = subdomainResolution
   }
 
   /**
@@ -45,8 +61,7 @@ export class TrustlessGateway {
    * https://specs.ipfs.tech/http-gateways/trustless-gateway/
    */
   async getRawBlock (cid: CID, signal?: AbortSignal): Promise<Uint8Array> {
-    const gwUrl = this.url
-    gwUrl.pathname = `/ipfs/${cid.toString()}`
+    const gwUrl = this.getGwUrl(cid)
 
     // necessary as not every gateway supports dag-cbor, but every should support
     // sending raw block as-is
@@ -61,8 +76,8 @@ export class TrustlessGateway {
       const res = await fetch(gwUrl.toString(), {
         signal,
         headers: {
-        // also set header, just in case ?format= is filtered out by some
-        // reverse proxy
+          // also set header, just in case ?format= is filtered out by some
+          // reverse proxy
           Accept: 'application/vnd.ipld.raw'
         },
         cache: 'force-cache'
@@ -82,6 +97,20 @@ export class TrustlessGateway {
       this.#errors++
       throw new Error(`unable to fetch raw block for CID ${cid}`)
     }
+  }
+
+  /**
+   * Construct the Gateway URL for a CID
+   */
+  getGwUrl (cid: CID): URL {
+    const gwUrl = new URL(this.url)
+
+    if (this.subdomainResolution) {
+      gwUrl.hostname = `${cid.toString(base32)}.ipfs.${gwUrl.hostname}`
+    } else {
+      gwUrl.pathname = `/ipfs/${cid.toString()}`
+    }
+    return gwUrl
   }
 
   /**
@@ -114,7 +143,7 @@ export class TrustlessGateway {
      *
      * Play around with the below reliability function at https://www.desmos.com/calculator/d6hfhf5ukm
      */
-    return this.#successes / (this.#attempts + (this.#errors * 3))
+    return this.#successes / (this.#attempts + this.#errors * 3)
   }
 
   /**
