@@ -115,6 +115,10 @@ class DefaultJSON implements JSON {
   }
 
   async get <T> (cid: CID, options: Partial<GetOptions> = {}): Promise<T> {
+    if (cid.code !== jsonCodec.code) {
+      throw new TypeError('The passed CID had an incorrect codec, it may correspond to a non-JSON block')
+    }
+
     const buf = await this.components.blockstore.get(cid, options)
 
     return jsonCodec.decode(buf)

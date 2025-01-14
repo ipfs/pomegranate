@@ -2,10 +2,10 @@
 
 import { expect } from 'aegir/chai'
 import { MemoryBlockstore } from 'blockstore-core'
+import { CID } from 'multiformats/cid'
 import { identity } from 'multiformats/hashes/identity'
 import { json, type JSON } from '../src/index.js'
 import type { Blockstore } from 'interface-blockstore'
-import type { CID } from 'multiformats/cid'
 
 describe('get', () => {
   let blockstore: Blockstore
@@ -38,5 +38,11 @@ describe('get', () => {
     })
 
     await expect(j.get(cid)).to.eventually.deep.equal(input)
+  })
+
+  it('rejects if CID codec is not equal to JSON codec', async () => {
+    const rawCID = CID.createV1(0x55, cid.multihash)
+    await expect(j.get(rawCID)).to.eventually.be.rejected
+      .with.property('message', 'The passed CID had an incorrect codec, it may correspond to a non-JSON block')
   })
 })
