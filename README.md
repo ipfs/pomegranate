@@ -232,7 +232,7 @@ There are several other modules available outside this repo:
 - [`@helia/delegated-routing-v1-http-api`](https://github.com/ipfs/helia-delegated-routing-v1-http-api) An implementation of the [Delegated Routing v1 HTTP API](https://specs.ipfs.tech/routing/http-routing-v1/) including a server and a client
 - [Helia WNFS](https://github.com/shovelers/helia-wnfs) a [WNFS](https://guide.fission.codes/developers/webnative/file-system-wnfs) implementation built on top of Helia
 - [`@helia/remote-pinning`](https://github.com/ipfs/helia-remote-pinning) A Helia client for communicating with [IPFS Pinning Services](https://ipfs.github.io/pinning-services-api-spec/)
-- [`@helia/http-gateway`](https://github.com/ipfs/helia-http-gateway) An implentation of the [IPFS HTTP Gateway API](https://docs.ipfs.tech/concepts/ipfs-gateway/#gateway-types) built with Helia
+- [`@helia/http-gateway`](https://github.com/ipfs/helia-http-gateway) An implementation of the [IPFS HTTP Gateway API](https://docs.ipfs.tech/concepts/ipfs-gateway/#gateway-types) built with Helia
 
 # 📣 Project status
 
