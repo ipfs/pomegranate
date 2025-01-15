@@ -15,7 +15,7 @@
     "@chainsafe/libp2p-noise": "^16.0.0",
     "@chainsafe/libp2p-yamux": "^7.0.0",
     "@helia/block-brokers": "^4.0.2",
-    "@helia/routers": "^2.2.0",
+    "@helia/routers": "^3.0.0",
     "@helia/unixfs": "^4.0.1",
     "@ipld/dag-pb": "^4.1.0",
     "@libp2p/circuit-relay-v2": "^3.0.0",
