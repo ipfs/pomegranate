@@ -54,7 +54,7 @@ describe('cp', () => {
       .with.property('name', 'NotUnixFSError')
   })
 
-  it('refuses to copy a non-existant file', async () => {
+  it('refuses to copy a non-existent file', async () => {
     await expect(fs.cp('/foo.txt', '/bar.txt')).to.eventually.be.rejected
       .with.property('name', 'DoesNotExistError')
   })
