@@ -40,7 +40,6 @@ export interface StringsComponents {
 
 export interface AddOptions extends AbortOptions, ProgressOptions<PutBlockProgressEvents> {
   hasher: MultihashHasher
-  codec: BlockCodec<any, unknown>
 }
 
 export interface GetOptions extends AbortOptions, ProgressOptions<GetBlockProgressEvents> {
@@ -105,8 +104,7 @@ class DefaultStrings implements Strings {
   async add (string: string, options: Partial<AddOptions> = {}): Promise<CID> {
     const buf = uint8ArrayFromString(string)
     const hash = await (options.hasher ?? sha256).digest(buf)
-    const codec = options.codec ?? raw
-    const cid = CID.createV1(codec.code, hash)
+    const cid = CID.createV1(raw.code, hash)
 
     await this.components.blockstore.put(cid, buf, options)
 
